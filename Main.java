@@ -1,4 +1,4 @@
-
+package application;
 	
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -7,9 +7,11 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import application.reddit;
 
 
 public class Main extends Application {
+	private static reddit r = new reddit();
     public static void main(String[] args) {
         launch(args);
     }
@@ -23,7 +25,7 @@ public class Main extends Application {
  
         @Override
         public void handle(ActionEvent event) {
-                System.out.println("Hello World!");
+        		r.redditTest();
             }
         });
         
