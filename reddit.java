@@ -18,11 +18,11 @@ import org.json.JSONObject;
 
 
 public class reddit {
-	String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.168 Safari/537.36";
+	String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36";
 	private HttpClient client = HttpClientBuilder.create().build();
 	
 	public void redditTest() {
-		String url = "https://www.reddit.com/r/dogs/search.json?q=title:dog&sort=newhttps://www.reddit.com/r/dogs/search.json?q=title:dog&sort=new&restrict_sr=o";
+		String url = "https://www.reddit.com/r/dogs/search.json?q=title:dog&sort=new&restrict_sr=o";
 		HttpGet request = new HttpGet(url);
 		request.addHeader("User-Agent", USER_AGENT);
 		HttpResponse response;
