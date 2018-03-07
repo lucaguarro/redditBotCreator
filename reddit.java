@@ -1,4 +1,4 @@
-package application;
+package redditBotCreator;
 //key = QQk0C890TbkUVA
 
 import java.io.BufferedReader;
@@ -21,11 +21,12 @@ public class reddit {
 	String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36";
 	private HttpClient client = HttpClientBuilder.create().build();
 	
-	public void redditTest() {
+	public JSONObject redditTest() {
 		String url = "https://www.reddit.com/r/dogs/search.json?q=title:dog&sort=new&restrict_sr=o";
 		HttpGet request = new HttpGet(url);
 		request.addHeader("User-Agent", USER_AGENT);
 		HttpResponse response;
+		JSONObject o = null;
 		try {
 			response = client.execute(request);
 			System.out.println("Response Code : "
@@ -37,8 +38,8 @@ public class reddit {
 			    result.append(line);
 			}
 
-			JSONObject o = new JSONObject(result.toString());
-			System.out.println(o.toString());
+			o = new JSONObject(result.toString());
+
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -46,8 +47,9 @@ public class reddit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return o;
 	}
-	
+	/*
 	public void testingHttpClient() {
 		String url = "https://api.github.com/users/lucaguarro";
 		HttpGet request = new HttpGet(url);
@@ -74,4 +76,5 @@ public class reddit {
 			e.printStackTrace();
 		}
 	}
+	*/
 }

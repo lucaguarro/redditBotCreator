@@ -1,4 +1,4 @@
-package application;
+package redditBotCreator;
 	
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -7,7 +7,8 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
-import application.reddit;
+import org.json.JSONObject;
+//import redditBotCreator.reddit;
 
 
 public class Main extends Application {
@@ -25,7 +26,11 @@ public class Main extends Application {
  
         @Override
         public void handle(ActionEvent event) {
-        		r.redditTest();
+                System.out.println("Making reddit request");
+        		JSONObject data;
+        		data = r.redditTest();
+        		data = data.getJSONObject("data");
+                System.out.println(data.toString());
             }
         });
         
