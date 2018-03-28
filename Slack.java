@@ -17,12 +17,13 @@ public class Slack {
         }
     }
     void openWeb2() {
-        String url = "http://www.google.com";
-
+        String url = "http://www.redditbotcreator.byethost6.com/apps/myapp/install.php";
+        boolean websiteLaunched = false;
         if(Desktop.isDesktopSupported()){
             Desktop desktop = Desktop.getDesktop();
             try {
                 desktop.browse(new URI(url));
+                websiteLaunched = true;
             } catch (IOException | URISyntaxException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -31,11 +32,18 @@ public class Slack {
             Runtime runtime = Runtime.getRuntime();
             try {
                 runtime.exec("xdg-open " + url);
+                websiteLaunched = true;
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
+        if(websiteLaunched){
+            waitForClipboard();
+        }
+    }
+    void waitForClipboard(){
+        
     }
     void openWeb() {
         if (Desktop.isDesktopSupported()) {
