@@ -13,7 +13,7 @@ public class Bot {
     private boolean isOn;
     public Bot(String name){
         this.name = new SimpleStringProperty(name);
-        this.turnOff();
+        this.setIsOn(false);
     }
     public int getFrequency(){ return frequency; }
     public void setFrequency(int frequency){ this.frequency = frequency; }
@@ -24,6 +24,5 @@ public class Bot {
     public String getName(){ return name.get(); }
     public void setName(String name){ this.name.setValue(name); }
     public Boolean isOn(){ return this.isOn; }
-    public void turnOff(){ this.isOn = false; }
-    public void turnOn(){ this.isOn = true; }
+    public void setIsOn(boolean newValue){ this.isOn = newValue; }
 }
