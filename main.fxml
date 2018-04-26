@@ -76,10 +76,10 @@
                         <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
                      </textFill>
                   </Label>
-                  <TableView layoutY="107.0" prefHeight="519.0" prefWidth="279.0" AnchorPane.bottomAnchor="97.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
+                  <TableView fx:id="botTable" layoutY="107.0" prefHeight="519.0" prefWidth="279.0" AnchorPane.bottomAnchor="97.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
                     <columns>
-                      <TableColumn prefWidth="75.0" text="Bot Name" />
-                      <TableColumn text="On" />
+                      <TableColumn fx:id="nameColumn" prefWidth="75.0" text="Bot Name" />
+                      <TableColumn fx:id="statusColumn" text="On" />
                     </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -107,8 +107,8 @@
                                     <Font size="18.0" />
                                  </font>
                               </Label>
-                              <TextField GridPane.columnIndex="1" />
-                              <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="65.0" text="Add" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField fx:id="newBotName" GridPane.columnIndex="1" />
+                              <Button mnemonicParsing="false" onAction="#onBotCreate" prefHeight="25.0" prefWidth="65.0" text="Add" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                      </children>
