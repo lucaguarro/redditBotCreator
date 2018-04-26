@@ -113,10 +113,10 @@ public class Controller implements Initializable {
                 public void handle(MouseEvent event) {
                 }
             });
-            checkbox.selectedProperty((o, oldValue, newValue) -> {
+            checkbox.selectedProperty().addListener((o, oldValue, newValue) -> {
                 if (!updating) {
                     updating = true;
-                    getTableRow().getItem().setIsOn(newValue);
+                    ((Bot)getTableRow().getItem()).setIsOn(newValue);
                     updating = false;
                 }
             });
