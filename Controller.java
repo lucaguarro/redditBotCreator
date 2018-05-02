@@ -1,8 +1,6 @@
 package redditBotCreator;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
@@ -27,7 +26,33 @@ import javafx.fxml.FXML;
 public class Controller implements Initializable {
     private static reddit r = new reddit();
     private static Slack s = new Slack();
+    private Bot currentBot;
 
+    @FXML
+    private Label slackVerificationLabel;
+    @FXML
+    private FontAwesomeIconView slackVerificationIcon;
+    @FXML
+    private TextField newBotName;
+
+    ObservableList<Bot> bots = FXCollections.observableArrayList();
+    @FXML
+    private TableView<Bot> botTable;
+    @FXML
+    private TableColumn<Bot, String> nameColumn;
+    @FXML
+    private TableColumn<Bot, Boolean> statusColumn;
+    @FXML
+    private TextField subredditTextField;
+    @FXML
+    private TextField wordTextField;
+    @FXML
+    private ListView subredditList;
+    @FXML
+    private ListView wordList;
+
+    protected ListProperty<String> subredditsProperty = new SimpleListProperty<>();
+    protected ListProperty<String> wordsProperty = new SimpleListProperty<>();
     //ArrayList<Bot> bots = new ArrayList<Bot>();
     public void slackLoginClicked(){
         s.openWeb2();
@@ -50,6 +75,15 @@ public class Controller implements Initializable {
         bots.add(new Bot(name));
     }
 
+    public void addSubreddit(){
+        System.out.println("Calling");
+        currentBot.getSubreddits().add(subredditTextField.getText());
+    }
+
+    public void addWord(){
+        currentBot.getWords().add(wordTextField.getText());
+    }
+
     public void testRedditRequest(){
         System.out.println("Making reddit request");
         JSONObject data;
@@ -57,22 +91,6 @@ public class Controller implements Initializable {
         data = data.getJSONObject("data");
         System.out.println(data.toString());
     }
-
-
-    @FXML
-    private Label slackVerificationLabel;
-    @FXML
-    private FontAwesomeIconView slackVerificationIcon;
-    @FXML
-    private TextField newBotName;
-
-    ObservableList<Bot> bots = FXCollections.observableArrayList();
-    @FXML
-    private TableView<Bot> botTable;
-    @FXML
-    private TableColumn<Bot, String> nameColumn;
-    @FXML
-    private TableColumn<Bot, Boolean> statusColumn;
 
     public void initialize(URL location, ResourceBundle resources){
         nameColumn.setCellValueFactory(new PropertyValueFactory<Bot, String>("name"));
@@ -92,6 +110,23 @@ public class Controller implements Initializable {
             }
         });
 
+        /**
+         * Adds a click listener to each row as it is added to the table
+         */
+        botTable.setRowFactory(tv -> {
+            TableRow<Bot> row = new TableRow<>(); //create row
+            row.setOnMouseClicked(event -> { //give click listener
+                if (! row.isEmpty() && event.getButton()== MouseButton.PRIMARY) {
+                    currentBot = row.getItem();
+                    subredditList.setItems(currentBot.getSubreddits());
+                    wordList.setItems(currentBot.getWords());
+                }
+                else if(! row.isEmpty() && event.getButton() == MouseButton.SECONDARY){
+                    System.out.println("GOtemmmm");
+                }
+            });
+            return row ;
+        });
         botTable.setItems(bots);
     }
 
@@ -108,11 +143,7 @@ public class Controller implements Initializable {
             setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             paddedCheckBox.setPadding(new Insets(3));
             paddedCheckBox.getChildren().add(checkbox);
-            checkbox.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                }
-            });
+
             checkbox.selectedProperty().addListener((o, oldValue, newValue) -> {
                 if (!updating) {
                     updating = true;

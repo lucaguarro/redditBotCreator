@@ -3,7 +3,9 @@
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -128,6 +130,16 @@
                            <font>
                               <Font size="14.0" />
                            </font></Label>
+                        <ListView fx:id="subredditList" layoutX="110.0" layoutY="99.0" prefHeight="114.0" prefWidth="308.0" />
+                        <Label layoutX="28.0" layoutY="99.0" prefHeight="27.0" prefWidth="65.0" text="Subreddits" />
+                        <TextField fx:id="subredditTextField" layoutX="110.0" layoutY="223.0" />
+                        <Button layoutX="274.0" layoutY="223.0" mnemonicParsing="false" onAction="#addSubreddit" text="Add Subreddit" />
+                        <ListView fx:id="wordList" layoutX="110.0" layoutY="272.0" prefHeight="114.0" prefWidth="308.0" />
+                        <Label layoutX="16.0" layoutY="272.0" prefHeight="30.0" prefWidth="90.0" text="Words to search" />
+                        <TextField fx:id="wordTextField" layoutX="110.0" layoutY="396.0" />
+                        <Button layoutX="274.0" layoutY="396.0" mnemonicParsing="false" onAction="#addWord" text="Add Word" />
+                        <ComboBox layoutX="110.0" layoutY="461.0" prefWidth="150.0" />
+                        <Label layoutX="16.0" layoutY="458.0" prefHeight="30.0" prefWidth="90.0" text="Frequency" />
                      </children>
                   </AnchorPane>
                </content>
