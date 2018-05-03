@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class Bot {
     private SimpleStringProperty name;
-    private int frequency;
+    private Frequency frequency;
 
     private ObservableList<String> subreddits = FXCollections.observableArrayList();
     private ObservableList<String> words = FXCollections.observableArrayList();
@@ -20,10 +20,10 @@ public class Bot {
         this.name = new SimpleStringProperty(name);
         this.setIsOn(false);
     }
-    public int getFrequency(){
+    public Frequency getFrequency(){
         return frequency;
     }
-    public void setFrequency(int frequency){
+    public void setFrequency(Frequency frequency){
         this.frequency = frequency;
     }
     public ObservableList<String> getSubreddits(){

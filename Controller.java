@@ -1,6 +1,7 @@
 package redditBotCreator;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -93,6 +94,11 @@ public class Controller implements Initializable {
         }
     }
 
+    public void setFrequency(){
+        Frequency freq = (Frequency) freqBox.getValue();
+        currentBot.setFrequency(freq);
+    }
+
     public void addWord(){
         currentBot.getWords().add(wordTextField.getText());
     }
@@ -134,6 +140,7 @@ public class Controller implements Initializable {
                     currentBot = row.getItem();
                     subredditList.setItems(currentBot.getSubreddits());
                     wordList.setItems(currentBot.getWords());
+                    freqBox.setValue(currentBot.getFrequency());
                 }
                 else if(! row.isEmpty() && event.getButton() == MouseButton.SECONDARY){
                     System.out.println("GOtemmmm");

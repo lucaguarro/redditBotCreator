@@ -15,6 +15,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -117,9 +118,9 @@
                   </Pane>
                </children>
             </AnchorPane>
-            <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+            <ScrollPane prefHeight="554.0" prefWidth="501.0">
                <content>
-                  <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="666.0" prefWidth="515.0">
+                  <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="653.0" prefWidth="515.0">
                      <children>
                         <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Bot Editor" textAlignment="CENTER" textFill="$x2" wrapText="false" />
                         <Button layoutX="171.0" layoutY="17.0" mnemonicParsing="false" onAction="#slackLoginClicked" styleClass="button-blue" />
@@ -138,8 +139,9 @@
                         <Label layoutX="16.0" layoutY="272.0" prefHeight="30.0" prefWidth="90.0" text="Words to search" />
                         <TextField fx:id="wordTextField" layoutX="110.0" layoutY="396.0" />
                         <Button layoutX="274.0" layoutY="396.0" mnemonicParsing="false" onAction="#addWord" text="Add Word" />
-                        <ComboBox fx:id="freqBox" layoutX="110.0" layoutY="461.0" prefWidth="150.0" />
+                        <ComboBox fx:id="freqBox" layoutX="110.0" layoutY="461.0" onAction="#setFrequency" prefWidth="150.0" />
                         <Label layoutX="16.0" layoutY="458.0" prefHeight="30.0" prefWidth="90.0" text="Frequency" />
+                        <ToggleButton layoutX="185.0" layoutY="578.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="159.0" text="LETS GO!!!" />
                      </children>
                   </AnchorPane>
                </content>
