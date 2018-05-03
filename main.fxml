@@ -138,7 +138,7 @@
                         <Label layoutX="16.0" layoutY="272.0" prefHeight="30.0" prefWidth="90.0" text="Words to search" />
                         <TextField fx:id="wordTextField" layoutX="110.0" layoutY="396.0" />
                         <Button layoutX="274.0" layoutY="396.0" mnemonicParsing="false" onAction="#addWord" text="Add Word" />
-                        <ComboBox layoutX="110.0" layoutY="461.0" prefWidth="150.0" />
+                        <ComboBox fx:id="freqBox" layoutX="110.0" layoutY="461.0" prefWidth="150.0" />
                         <Label layoutX="16.0" layoutY="458.0" prefHeight="30.0" prefWidth="90.0" text="Frequency" />
                      </children>
                   </AnchorPane>

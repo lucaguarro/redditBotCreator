@@ -14,6 +14,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import org.json.JSONObject;
 import javafx.fxml.Initializable;
 
@@ -24,9 +25,10 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 
 public class Controller implements Initializable {
-    private static reddit r = new reddit();
     private static Slack s = new Slack();
+    private reddit r;
     private Bot currentBot;
+
 
     @FXML
     private Label slackVerificationLabel;
@@ -50,6 +52,8 @@ public class Controller implements Initializable {
     private ListView subredditList;
     @FXML
     private ListView wordList;
+    @FXML
+    private ComboBox freqBox;
 
     protected ListProperty<String> subredditsProperty = new SimpleListProperty<>();
     protected ListProperty<String> wordsProperty = new SimpleListProperty<>();
@@ -64,10 +68,10 @@ public class Controller implements Initializable {
     }
 
     public void testMe(){
-        for(int i = 0; i < bots.size(); i++){
-            System.out.println("Name: " + bots.get(i).getName());
-            System.out.println("Is on? " + bots.get(i).isOn() + "\n");
-        }
+        boolean ay = r.doesSubredditExist("dogs");
+        System.out.println(ay);
+        ay = r.doesSubredditExist("dogsasdfasdfasdfsd");
+        System.out.println(ay);
     }
 
     public void onBotCreate(){
@@ -76,8 +80,17 @@ public class Controller implements Initializable {
     }
 
     public void addSubreddit(){
-        System.out.println("Calling");
-        currentBot.getSubreddits().add(subredditTextField.getText());
+        String subreddit = subredditTextField.getText();
+        boolean exists = r.doesSubredditExist(subreddit);
+        if(exists)
+            currentBot.getSubreddits().add(subreddit);
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Bad Subreddit");
+            alert.setContentText(subreddit + " is not a valid subreddit!");
+            alert.showAndWait();
+        }
     }
 
     public void addWord(){
@@ -93,6 +106,7 @@ public class Controller implements Initializable {
     }
 
     public void initialize(URL location, ResourceBundle resources){
+        r = reddit.getInstance();
         nameColumn.setCellValueFactory(new PropertyValueFactory<Bot, String>("name"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<Bot, Boolean>("on"));
         statusColumn.setSortable(false);
@@ -128,6 +142,27 @@ public class Controller implements Initializable {
             return row ;
         });
         botTable.setItems(bots);
+        //int[] frequencies = {60000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000, 604800000};
+        freqBox.getItems().addAll(
+                new Frequency("Every Minute", 60000),
+                new Frequency("Every 15 Minutes", 900000),
+                new Frequency("Every 30 Minutes", 1800000),
+                new Frequency("Every Hour", 3600000),
+                new Frequency("Every 4 Hours", 14400000),
+                new Frequency("Every 12 Hours", 43200000),
+                new Frequency("Every Day", 86400000),
+                new Frequency("Every Week", 604800000)
+        );
+        freqBox.setConverter(new StringConverter<Frequency>(){
+            @Override
+            public String toString(Frequency object) {
+                return object.getEnglish();
+            }
+            @Override
+            public Frequency fromString(String string) {
+                return null;
+            }
+        });
     }
 
     /** A table cell containing a button for adding a new person. */

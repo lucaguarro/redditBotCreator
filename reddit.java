@@ -20,7 +20,36 @@ import org.json.JSONObject;
 public class reddit {
 	String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36";
 	private HttpClient client = HttpClientBuilder.create().build();
-	
+	private static reddit reddit;
+	private reddit(){}
+	public static reddit getInstance(){
+		if(reddit == null){
+			reddit = new reddit();
+		}
+		return reddit;
+	}
+	public boolean doesSubredditExist(String subreddit) {
+		String url = "https://api.reddit.com/api/search_reddit_names.json?query=" + subreddit + "&exact=true";
+		HttpGet request = new HttpGet(url);
+		request.addHeader("User-Agent", USER_AGENT);
+		HttpResponse response;
+		JSONObject o = null;
+		try {
+			response = client.execute(request);
+			request.releaseConnection();
+			if(199 <= response.getStatusLine().getStatusCode() && response.getStatusLine().getStatusCode() <= 300)
+				return true;
+			else
+				return false;
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+	}
 	public JSONObject redditTest() {
 		String url = "https://www.reddit.com/r/dogs/search.json?q=title:dog&sort=new&restrict_sr=o";
 		HttpGet request = new HttpGet(url);
