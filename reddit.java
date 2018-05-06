@@ -4,6 +4,7 @@ package redditBotCreator;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -50,7 +51,52 @@ public class reddit {
 		}
 		return true;
 	}
+	public void addLinksToArrayList(ArrayList<String> linksToPosts){
+
+	}
+	public ArrayList<String> getLinks(Bot bot){
+		String baseURL = "https://www.reddit.com/r/";
+		for (String subreddit: bot.getSubreddits()) {
+			baseURL += subreddit + "+";
+		}
+		baseURL = baseURL.substring(0, baseURL.length() - 1); //get rid of last plus sign
+		baseURL += "/search.json?q=title:";
+		String url;
+		ArrayList<String> linksToPosts;
+		for (String word: bot.getWords()){
+			url = baseURL + word + "&sort=new&restrict_sr=o";
+
+		}
+	}
+	public JSONObject makeRedditRequest(String url){
+		HttpGet request = new HttpGet(url);
+		request.addHeader("User-Agent", USER_AGENT);
+		HttpResponse response;
+		JSONObject o = null;
+		try {
+			response = client.execute(request);
+			System.out.println("Response Code : "
+					+ response.getStatusLine().getStatusCode());
+			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+			StringBuffer result = new StringBuffer();
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				result.append(line);
+			}
+
+			o = new JSONObject(result.toString());
+
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return o;
+	}
 	public JSONObject redditTest() {
+		//https://www.reddit.com/r/funny+pics+news/search?q=title:test&sort=new&restrict_sr=on
 		String url = "https://www.reddit.com/r/dogs/search.json?q=title:dog&sort=new&restrict_sr=o";
 		HttpGet request = new HttpGet(url);
 		request.addHeader("User-Agent", USER_AGENT);
@@ -66,8 +112,9 @@ public class reddit {
 			while ((line = rd.readLine()) != null) {
 			    result.append(line);
 			}
-
 			o = new JSONObject(result.toString());
+			o.getJSONObject("data").getJSONObject("children");
+			System.out.println((o.toString()));
 
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block

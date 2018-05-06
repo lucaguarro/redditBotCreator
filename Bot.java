@@ -7,9 +7,11 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 
-public class Bot {
+public class Bot implements Comparable<Bot>{
     private SimpleStringProperty name;
     private Frequency frequency;
+    private Long timeRemaining;
+    private long lastTimeStamp;
 
     private ObservableList<String> subreddits = FXCollections.observableArrayList();
     private ObservableList<String> words = FXCollections.observableArrayList();
@@ -49,5 +51,26 @@ public class Bot {
     }
     public void setIsOn(boolean newValue){
         this.isOn = newValue;
+    }
+    public void startTimeRemaining(){
+        this.timeRemaining = (long)0;
+    }
+    public void restartTimeRemaining(){
+        this.timeRemaining = this.frequency.getMilliseconds();
+    }
+    public void decrementTimeRemaining(long decrementBy){
+        this.timeRemaining -= decrementBy;
+    }
+    public long getTimeRemaining(){
+        return this.timeRemaining;
+    }
+    public int compareTo(Bot other){
+        return timeRemaining.compareTo(other.timeRemaining);
+    }
+    public long getLastTimeStamp(){
+        return this.lastTimeStamp;
+    }
+    public void setLastTimeStamp(long timeStamp){
+        this.lastTimeStamp = timeStamp;
     }
 }

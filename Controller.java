@@ -21,6 +21,8 @@ import javafx.fxml.Initializable;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.PriorityQueue;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
@@ -55,10 +57,78 @@ public class Controller implements Initializable {
     private ListView wordList;
     @FXML
     private ComboBox freqBox;
+    @FXML
+    private ToggleButton executeBtn;
 
     protected ListProperty<String> subredditsProperty = new SimpleListProperty<>();
     protected ListProperty<String> wordsProperty = new SimpleListProperty<>();
-    //ArrayList<Bot> bots = new ArrayList<Bot>();
+
+    Thread botThread;
+    public void onExecuteToggle(){
+        if(executeBtn.isSelected()){
+            botThread =  new Thread(new Runnable() {
+                public void run() {
+                    runTheBots(); // code goes here.
+                }
+            });
+            botThread.start();
+        }
+        else{
+            botThread.interrupt();
+        }
+    }
+
+    public void runTheBots(){
+        System.out.println("Starting run...");
+        /*
+            Create our priority queue of bots. The priority queue determines which bot is up next to make
+            the HTTP requests to reddit.
+         */
+        PriorityQueue<Bot> onBots = new PriorityQueue<>();
+        for(int i = 0; i < bots.size(); i++){
+            //We only want to add the bots that are turned on to the priority queue
+            if(bots.get(i).isOn()) {
+                //Start time remaining will make all bots perform requests to reddit at the start
+                bots.get(i).startTimeRemaining();
+                //Start off by getting all posts in the past hour
+                bots.get(i).setLastTimeStamp(System.currentTimeMillis()/1000-360000);
+                onBots.add(bots.get(i));
+            }
+        }
+        long timeRemaining;
+        /*
+            Now we are ready to get the bots running
+         */
+        while(executeBtn.isSelected()){ //We go until the user turns off the execute button
+            timeRemaining = onBots.peek().getTimeRemaining(); //shortest time remaining will be the peek (since its a PQ)
+            while(timeRemaining == 0){ //If it is 0, then it is time for this bot to make its reddit requests
+                Bot bot = onBots.remove(); //Bot with timeRemaining = 0 is the top
+                bot.restartTimeRemaining(); //refresh its timer
+                onBots.add(bot); //readd it to the PQ
+                timeRemaining = onBots.peek().getTimeRemaining(); //get the time remaining of the next bot in the PQ
+                /*
+                    REDDIT REQUEST GOES HERE
+                 */
+
+
+            }
+            try {
+                Thread.sleep(timeRemaining); //If we get here it means that we have gotten a non-zero timeRemaining value
+                Iterator<Bot> iter = onBots.iterator();
+                Bot current;
+                while (iter.hasNext()) {
+                    current = iter.next();
+                    current.decrementTimeRemaining(timeRemaining);
+                    // do something with current
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Interrupting thread");
+            }
+        }
+
+        System.out.println("Stopping run...");
+    }
+
     public void slackLoginClicked(){
         s.openWeb2();
         slackVerificationLabel.setText("Verified");
@@ -69,10 +139,7 @@ public class Controller implements Initializable {
     }
 
     public void testMe(){
-        boolean ay = r.doesSubredditExist("dogs");
-        System.out.println(ay);
-        ay = r.doesSubredditExist("dogsasdfasdfasdfsd");
-        System.out.println(ay);
+        //System.out.println("Current time: " + System.currentTimeMillis()/1000);
     }
 
     public void onBotCreate(){
@@ -146,7 +213,7 @@ public class Controller implements Initializable {
                     System.out.println("GOtemmmm");
                 }
             });
-            return row ;
+            return row;
         });
         botTable.setItems(bots);
         //int[] frequencies = {60000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000, 604800000};

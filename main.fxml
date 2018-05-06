@@ -141,7 +141,7 @@
                         <Button layoutX="274.0" layoutY="396.0" mnemonicParsing="false" onAction="#addWord" text="Add Word" />
                         <ComboBox fx:id="freqBox" layoutX="110.0" layoutY="461.0" onAction="#setFrequency" prefWidth="150.0" />
                         <Label layoutX="16.0" layoutY="458.0" prefHeight="30.0" prefWidth="90.0" text="Frequency" />
-                        <ToggleButton layoutX="185.0" layoutY="578.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="159.0" text="LETS GO!!!" />
+                        <ToggleButton fx:id="executeBtn" onAction="#onExecuteToggle" layoutX="185.0" layoutY="578.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="159.0" text="LETS GO!!!" />
                      </children>
                   </AnchorPane>
                </content>
