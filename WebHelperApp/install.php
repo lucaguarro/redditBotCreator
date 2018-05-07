@@ -127,6 +127,7 @@ elseif ( $input['code'] !== null )
 		$msg = "Error while trying to access the slack API - Curl error: '$curlerror' - http error: '$http_code'";
 		showInstallFailed ($msg);
 	}
+	
 	else
 	{
 		$response = json_decode($result, true);
@@ -178,6 +179,10 @@ elseif ( $input['code'] !== null )
 				<p>Thank you for installing ' . APP_NAME . ' to your Slack team ' . $teamName. '</p>
 				<p>You can now close this browser window and return to Slack to try out the new app.</p>
 			';
+			$accessToken = $response['access_token'];
+			echo '
+				<p>Copy and paste this access token: ' . $accessToken . '</p>
+			';
 		}
 	}
 }
@@ -191,6 +196,19 @@ elseif ( $input['error'] !== null )
 	$msg = "Received an error from Slack: '" . $input['error'] . "'";
 	showInstallFailed ($msg);
 }
+
+//Code dealing with semaphores!!
+/*function get_key($fsize, $file){ 
+	if(!file_exists(TMPDIR.TMPPRE.$file)){ 
+		touch(TMPDIR.TMPPRE.$file); 
+	} 
+	$shmkey = @shmop_open(ftok(TMPDIR.TMPPRE.$file, 'R'), "c", 0644, $fsize); 
+	if(!$shmkey) { 
+			return false; 
+	}else{ 
+		return $shmkey; 
+	}//fi 
+}*/
 
 ?>
 

@@ -5,8 +5,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 
-import java.util.ArrayList;
-
+/**
+ * Bot class. A single bot searches specific subreddits for posts containing specific words.
+ * The bot executes with a user-defined frequency. The timeRemaining is the number of milliseconds it
+ * has to wait to do its next scan.
+ */
 public class Bot implements Comparable<Bot>{
     private SimpleStringProperty name;
     private Frequency frequency;

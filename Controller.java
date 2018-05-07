@@ -20,10 +20,8 @@ import org.json.JSONObject;
 import javafx.fxml.Initializable;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.PriorityQueue;
-import java.util.ResourceBundle;
+import java.sql.*;
+import java.util.*;
 
 import javafx.fxml.FXML;
 
@@ -59,6 +57,8 @@ public class Controller implements Initializable {
     private ComboBox freqBox;
     @FXML
     private ToggleButton executeBtn;
+    @FXML
+    private TextField accessToken;
 
     protected ListProperty<String> subredditsProperty = new SimpleListProperty<>();
     protected ListProperty<String> wordsProperty = new SimpleListProperty<>();
@@ -85,13 +85,16 @@ public class Controller implements Initializable {
             the HTTP requests to reddit.
          */
         PriorityQueue<Bot> onBots = new PriorityQueue<>();
+        Calendar cal;
         for(int i = 0; i < bots.size(); i++){
             //We only want to add the bots that are turned on to the priority queue
             if(bots.get(i).isOn()) {
                 //Start time remaining will make all bots perform requests to reddit at the start
                 bots.get(i).startTimeRemaining();
                 //Start off by getting all posts in the past hour
-                bots.get(i).setLastTimeStamp(System.currentTimeMillis()/1000-360000);
+                cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                System.out.println("millis: " + (cal.getTimeInMillis()/1000-3600));
+                bots.get(i).setLastTimeStamp(cal.getTimeInMillis()/1000-3600);
                 onBots.add(bots.get(i));
             }
         }
@@ -104,22 +107,27 @@ public class Controller implements Initializable {
             while(timeRemaining == 0){ //If it is 0, then it is time for this bot to make its reddit requests
                 Bot bot = onBots.remove(); //Bot with timeRemaining = 0 is the top
                 bot.restartTimeRemaining(); //refresh its timer
-                onBots.add(bot); //readd it to the PQ
+                onBots.add(bot); //read it to the PQ
                 timeRemaining = onBots.peek().getTimeRemaining(); //get the time remaining of the next bot in the PQ
                 /*
                     REDDIT REQUEST GOES HERE
                  */
-
-
+                ArrayList<String> links = r.getLinksToPosts(bot);
+                s.sendLinksToUsers(links, bot.getName().toString());
             }
             try {
-                Thread.sleep(timeRemaining); //If we get here it means that we have gotten a non-zero timeRemaining value
+                System.out.println("sleeping for " + timeRemaining + " milliseconds");
+                //If we get here it means that we have gotten a non-zero timeRemaining value
+                Thread.sleep(timeRemaining); //sleep the bot thread
                 Iterator<Bot> iter = onBots.iterator();
                 Bot current;
+
+                /*
+                    Need to decrement all of the bots time remaining by how long the thread slept for
+                 */
                 while (iter.hasNext()) {
                     current = iter.next();
                     current.decrementTimeRemaining(timeRemaining);
-                    // do something with current
                 }
             } catch (InterruptedException e) {
                 System.out.println("Interrupting thread");
@@ -138,8 +146,16 @@ public class Controller implements Initializable {
         slackVerificationIcon.setGlyphName("CHECK_CIRCLE_ALT");
     }
 
-    public void testMe(){
-        //System.out.println("Current time: " + System.currentTimeMillis()/1000);
+    public void testMe() throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
+        ArrayList<String> bs = new ArrayList<>();
+        s.sendLinksToUsers(bs, "asdf");
+        /*Class.forName("com.mysql.jdbc.Driver").newInstance();
+        Connection con = DriverManager.getConnection("jdbc:mysql://sql211.byethost.com:3306/b6_21748011_Tokens","b6_21748011", "slackbois");
+
+        Statement st = con.createStatement();
+        String sql = ("SELECT * FROM Tokens;");
+        st.getResultSet().getRow();
+        con.close();*/
     }
 
     public void onBotCreate(){
