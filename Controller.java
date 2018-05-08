@@ -19,6 +19,7 @@ import javafx.util.StringConverter;
 import org.json.JSONObject;
 import javafx.fxml.Initializable;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.*;
 import java.util.*;
@@ -64,14 +65,28 @@ public class Controller implements Initializable {
     protected ListProperty<String> wordsProperty = new SimpleListProperty<>();
 
     Thread botThread;
+
+    public void makeAlert(String title, String headerText, String contentText){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        alert.showAndWait();
+    }
     public void onExecuteToggle(){
         if(executeBtn.isSelected()){
-            botThread =  new Thread(new Runnable() {
-                public void run() {
-                    runTheBots(); // code goes here.
-                }
-            });
-            botThread.start();
+            if(!s.hasToken()){
+                makeAlert("Error", "No Token", "You did not provide a token. Please click the add to slack button to get the access token.");
+                executeBtn.setSelected(false);
+            }
+            else {
+                botThread = new Thread(new Runnable() {
+                    public void run() {
+                        runTheBots(); // code goes here.
+                    }
+                });
+                botThread.start();
+            }
         }
         else{
             botThread.interrupt();
@@ -85,18 +100,23 @@ public class Controller implements Initializable {
             the HTTP requests to reddit.
          */
         PriorityQueue<Bot> onBots = new PriorityQueue<>();
-        Calendar cal;
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));;
         for(int i = 0; i < bots.size(); i++){
             //We only want to add the bots that are turned on to the priority queue
             if(bots.get(i).isOn()) {
                 //Start time remaining will make all bots perform requests to reddit at the start
                 bots.get(i).startTimeRemaining();
                 //Start off by getting all posts in the past hour
-                cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                 System.out.println("millis: " + (cal.getTimeInMillis()/1000-3600));
+                System.out.println("Last time stamp: " + bots.get(i).getLastTimeStamp());
+
                 bots.get(i).setLastTimeStamp(cal.getTimeInMillis()/1000-3600);
                 onBots.add(bots.get(i));
             }
+        }
+        if(onBots.size() == 0){
+            executeBtn.setSelected(false);
+            Thread.currentThread().interrupt();
         }
         long timeRemaining;
         /*
@@ -105,6 +125,7 @@ public class Controller implements Initializable {
         while(executeBtn.isSelected()){ //We go until the user turns off the execute button
             timeRemaining = onBots.peek().getTimeRemaining(); //shortest time remaining will be the peek (since its a PQ)
             while(timeRemaining == 0){ //If it is 0, then it is time for this bot to make its reddit requests
+                System.out.println("Time remaining: " + timeRemaining);
                 Bot bot = onBots.remove(); //Bot with timeRemaining = 0 is the top
                 bot.restartTimeRemaining(); //refresh its timer
                 onBots.add(bot); //read it to the PQ
@@ -114,6 +135,9 @@ public class Controller implements Initializable {
                  */
                 ArrayList<String> links = r.getLinksToPosts(bot);
                 s.sendLinksToUsers(links, bot.getName().toString());
+
+                //update the last time stamp so we do not get duplicate posts
+                bot.setLastTimeStamp(cal.getTimeInMillis()/1000);
             }
             try {
                 System.out.println("sleeping for " + timeRemaining + " milliseconds");
@@ -139,23 +163,11 @@ public class Controller implements Initializable {
 
     public void slackLoginClicked(){
         s.openWeb2();
-        slackVerificationLabel.setText("Verified");
-        slackVerificationLabel.setStyle("-fx-text-fill: green");
-        slackVerificationIcon.setFill(Paint.valueOf("#0c8c0c"));
-        //slackVerificationIcon.setGlyphStyle("CHECK_CIRCLE_ALT");
-        slackVerificationIcon.setGlyphName("CHECK_CIRCLE_ALT");
     }
 
-    public void testMe() throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
+    public void testMe() throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException, UnsupportedEncodingException {
         ArrayList<String> bs = new ArrayList<>();
-        s.sendLinksToUsers(bs, "asdf");
-        /*Class.forName("com.mysql.jdbc.Driver").newInstance();
-        Connection con = DriverManager.getConnection("jdbc:mysql://sql211.byethost.com:3306/b6_21748011_Tokens","b6_21748011", "slackbois");
-
-        Statement st = con.createStatement();
-        String sql = ("SELECT * FROM Tokens;");
-        st.getResultSet().getRow();
-        con.close();*/
+        s.sendLinksToUsers(bs, "catbot");
     }
 
     public void onBotCreate(){
@@ -166,15 +178,14 @@ public class Controller implements Initializable {
     public void addSubreddit(){
         String subreddit = subredditTextField.getText();
         boolean exists = r.doesSubredditExist(subreddit);
-        if(exists)
+        if(exists) {
             currentBot.getSubreddits().add(subreddit);
-        else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Bad Subreddit");
-            alert.setContentText(subreddit + " is not a valid subreddit!");
-            alert.showAndWait();
+            subredditTextField.clear();
         }
+        else {
+            makeAlert("Error", "Bad Subreddit", subreddit + " is not a valid subreddit!");
+        }
+        subredditTextField.requestFocus();
     }
 
     public void setFrequency(){
@@ -184,14 +195,19 @@ public class Controller implements Initializable {
 
     public void addWord(){
         currentBot.getWords().add(wordTextField.getText());
+        wordTextField.clear();
+        wordTextField.requestFocus();
     }
 
-    public void testRedditRequest(){
-        System.out.println("Making reddit request");
-        JSONObject data;
-        data = r.redditTest();
-        data = data.getJSONObject("data");
-        System.out.println(data.toString());
+    public void validateUserEntry(){
+        String token = this.accessToken.getText();
+        boolean value = s.authorizeToken(token);
+        if(value){
+            slackVerificationLabel.setText("Verified");
+            slackVerificationLabel.setStyle("-fx-text-fill: green");
+            slackVerificationIcon.setFill(Paint.valueOf("#0c8c0c"));
+            slackVerificationIcon.setGlyphName("CHECK_CIRCLE_ALT");
+        }
     }
 
     public void initialize(URL location, ResourceBundle resources){
@@ -199,6 +215,8 @@ public class Controller implements Initializable {
         nameColumn.setCellValueFactory(new PropertyValueFactory<Bot, String>("name"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<Bot, Boolean>("on"));
         statusColumn.setSortable(false);
+        wordTextField.setFocusTraversable(false);
+        subredditTextField.setFocusTraversable(false);
 
         statusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Bot, Boolean>, ObservableValue<Boolean>>(){
             @Override public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<Bot, Boolean> features) {

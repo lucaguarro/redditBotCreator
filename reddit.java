@@ -68,11 +68,8 @@ public class reddit {
                 long created_utc = (long) ((double) objects.get("created_utc"));
                 if (created_utc > since) {
                     String link = (String) objects.get("url");
-                    System.out.println("link: " + link);
                     linksToPosts.add(link);
                 }
-                System.out.println("Created-utc: " + created_utc);
-                System.out.println("Since: " + since);
             }
         }
 	}
@@ -101,7 +98,6 @@ public class reddit {
 		try {
 		    System.out.println(url);
 			response = client.execute(request);
-			request.releaseConnection();
 			System.out.println("Response Code : "
 					+ response.getStatusLine().getStatusCode());
 			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
@@ -113,6 +109,7 @@ public class reddit {
             o = new JSONObject(result.toString());
             JSONArray arr;
             arr = o.getJSONObject("data").getJSONArray("children");
+            request.releaseConnection();
             return arr;
 		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
@@ -157,32 +154,4 @@ public class reddit {
 		return o;
 	}
 
-	/*
-	public void testingHttpClient() {
-		String url = "https://api.github.com/users/lucaguarro";
-		HttpGet request = new HttpGet(url);
-		request.addHeader("User-Agent", USER_AGENT);
-		HttpResponse response;
-		try {
-			response = client.execute(request);
-			System.out.println("Response Code : "
-	                + response.getStatusLine().getStatusCode());
-			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-			StringBuffer result = new StringBuffer();
-			String line = "";
-			while ((line = rd.readLine()) != null) {
-			    result.append(line);
-			}
-
-			JSONObject o = new JSONObject(result.toString());
-			System.out.println(o.toString());
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	*/
 }

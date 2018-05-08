@@ -141,7 +141,7 @@
                         <ComboBox fx:id="freqBox" layoutX="110.0" layoutY="461.0" onAction="#setFrequency" prefWidth="150.0" />
                         <Label layoutX="16.0" layoutY="458.0" prefHeight="30.0" prefWidth="90.0" text="Frequency" />
                         <ToggleButton fx:id="executeBtn" layoutX="185.0" layoutY="578.0" mnemonicParsing="false" onAction="#onExecuteToggle" prefHeight="49.0" prefWidth="159.0" text="LETS GO!!!" />
-                        <TextField fx:id="accessToken" layoutX="183.0" layoutY="38.0" prefHeight="25.0" prefWidth="239.0" promptText="Paste access token here" />
+                        <TextField fx:id="accessToken" layoutX="183.0" layoutY="38.0" onMouseExited="#validateUserEntry" prefHeight="25.0" prefWidth="239.0" promptText="Paste access token here" />
                      </children>
                   </AnchorPane>
                </content>
