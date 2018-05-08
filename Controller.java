@@ -193,28 +193,44 @@ public class Controller implements Initializable {
         bots.add(new Bot(name));
     }
 
-    public void addSubreddit(){
-        String subreddit = subredditTextField.getText();
-        boolean exists = r.doesSubredditExist(subreddit);
-        if(exists) {
-            currentBot.getSubreddits().add(subreddit);
-            subredditTextField.clear();
+    public void setFrequency(){
+        if (currentBot != null) {
+            Frequency freq = (Frequency) freqBox.getValue();
+            currentBot.setFrequency(freq);
+        } else {
+            utilities.getInstance().makeAlert("No Bot", "You did not select a bot", "Please select a bot before" +
+                    " attempting to give it a frequency");
         }
-        else {
-            utilities.getInstance().makeAlert("Error", "Bad Subreddit", subreddit + " is not a valid subreddit!");
-        }
-        subredditTextField.requestFocus();
     }
 
-    public void setFrequency(){
-        Frequency freq = (Frequency) freqBox.getValue();
-        currentBot.setFrequency(freq);
+    public void addSubreddit(){
+        if(currentBot != null) {
+            String subreddit = subredditTextField.getText();
+            boolean exists = r.doesSubredditExist(subreddit);
+            if (exists) {
+                currentBot.getSubreddits().add(subreddit);
+                subredditTextField.clear();
+            } else {
+                utilities.getInstance().makeAlert("Error", "Bad Subreddit", subreddit + " is not a valid subreddit!");
+            }
+            subredditTextField.requestFocus();
+        }
+        else{
+            utilities.getInstance().makeAlert("No Bot", "You did not select a bot", "Please select a bot before" +
+                    " attempting to add a subreddit");
+        }
     }
 
     public void addWord(){
-        currentBot.getWords().add(wordTextField.getText());
-        wordTextField.clear();
-        wordTextField.requestFocus();
+        if(currentBot != null) {
+            currentBot.getWords().add(wordTextField.getText());
+            wordTextField.clear();
+            wordTextField.requestFocus();
+        }
+        else{
+            utilities.getInstance().makeAlert("No Bot", "You did not select a bot", "Please select a bot before" +
+                    " attempting to add a word");
+        }
     }
 
     public void validateUserEntry(){
