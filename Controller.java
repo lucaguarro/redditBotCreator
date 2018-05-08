@@ -19,6 +19,7 @@ import javafx.util.StringConverter;
 import org.json.JSONObject;
 import javafx.fxml.Initializable;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.*;
@@ -70,13 +71,7 @@ public class Controller implements Initializable {
 
     Thread botThread;
 
-    public void makeAlert(String title, String headerText, String contentText){
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(headerText);
-        alert.setContentText(contentText);
-        alert.showAndWait();
-    }
+
 
     public void consoleDateAndTime(){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -87,7 +82,7 @@ public class Controller implements Initializable {
     public void onExecuteToggle(){
         if(executeBtn.isSelected()){
             if(!s.hasToken()){
-                makeAlert("Error", "No Token", "You did not provide a token. Please click the add to slack button to get the access token.");
+                utilities.getInstance().makeAlert("Error", "No Token", "You did not provide a token. Please click the add to slack button to get the access token.");
                 executeBtn.setSelected(false);
             }
             else {
@@ -181,7 +176,11 @@ public class Controller implements Initializable {
     }
 
     public void slackLoginClicked(){
-        s.openWeb2();
+        try {
+            s.crossPlatformOpenWebApp();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void testMe() throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException, UnsupportedEncodingException {
@@ -202,7 +201,7 @@ public class Controller implements Initializable {
             subredditTextField.clear();
         }
         else {
-            makeAlert("Error", "Bad Subreddit", subreddit + " is not a valid subreddit!");
+            utilities.getInstance().makeAlert("Error", "Bad Subreddit", subreddit + " is not a valid subreddit!");
         }
         subredditTextField.requestFocus();
     }

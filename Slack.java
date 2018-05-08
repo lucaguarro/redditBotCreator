@@ -26,36 +26,6 @@ public class Slack {
     void setToken(String token){
         this.token = token;
     }
-    void openWebxdg(){
-        String url = "http://www.redditbotcreator.byethost6.com/apps/myapp/install.php";
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            runtime.exec("xdg-open " + url);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    void openWeb2() {
-        String url = "http://www.redditbotcreator.byethost6.com/apps/myapp/install.php";
-        if(Desktop.isDesktopSupported()){
-            Desktop desktop = Desktop.getDesktop();
-            try {
-                desktop.browse(new URI(url));
-            } catch (IOException | URISyntaxException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }else{
-            Runtime runtime = Runtime.getRuntime();
-            try {
-                runtime.exec("xdg-open " + url);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
 
     /**
      * This function joins a slack channel. If the slack channel doesn't exist, it will create it.
@@ -259,7 +229,29 @@ public class Slack {
         }
         return false;
     }
+
     boolean hasToken(){
         return this.token != null;
+    }
+
+
+    void crossPlatformOpenWebApp() throws IOException {
+        String os = System.getProperty("os.name").toLowerCase();
+        String url = "http://www.redditbotcreator.byethost6.com/apps/myapp/install.php";
+        Runtime rt = Runtime.getRuntime();
+        if(os.indexOf("win") >= 0){
+            rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
+        }
+        else if(os.indexOf("mac") >= 0){
+            rt.exec("open " + url);
+        }
+        else if(os.indexOf("nix") >= 0 || os.indexOf(("nux")) >= 0){
+            rt.exec("xdg-open " + url);
+        }
+        else{
+            utilities.getInstance().makeAlert("Esoteric OS", "Could not open web-browser", "You are using an OS" +
+                    "that is not supported with this operation. Please open up your web browser and navigate to this link: " +
+                    "\'http://www.redditbotcreator.byethost6.com/apps/myapp/install.php\'.");
+        }
     }
 }
