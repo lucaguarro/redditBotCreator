@@ -67,11 +67,8 @@ echo '
 	
 // body
 
-//////////////////////////////////////////////////////
-// Page: Startpage
-// This page is shown at the begining
-// It contains the "Add to Slack" button 
-//////////////////////////////////////////////////////
+// Initial page
+// The "Add to Slack" button will send the user to slack to authorize the app
 
 if ( ($input['code'] === null) && ($input['error'] === null) )
 {	
@@ -88,15 +85,13 @@ if ( ($input['code'] === null) && ($input['error'] === null) )
 		<p>Note that you can always delete this app later from your Slack team if you don\'t want to use it any longer.</p>
 		<p style="font-weight:bold;">!! Please click the button below to start the installation process !!</p>
 		<p><a href="' . $slack_call . '">
-		<img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a></p>
+		<img alt="Add app to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a></p>
 		<br>
 	';
 }
 
-//////////////////////////////////////////////////////
 // Page: Processing of access code from Slack 
 // Slack has called this script with the code parameter which contains the access code
-//////////////////////////////////////////////////////
 
 elseif ( $input['code'] !== null )
 {
@@ -150,38 +145,14 @@ elseif ( $input['code'] !== null )
 			// Installation process has suceeded
 			
 			// $response contains the access token, information about the Slack team
-			// additional information based on the requested scope
-			
-			// here is an example for how the response will look:
-			//
-			//	{
-			//		"access_token": "xoxp-XXXXXXXX-XXXXXXXX-XXXXX",
-			//		"scope": "incoming-webhook,commands,bot",
-			//		"team_name": "Team Installing Your Hook",
-			//		"team_id": "XXXXXXXXXX",
-			//		"incoming_webhook": {
-			//			"url": "https://hooks.slack.com/TXXXXX/BXXXXX/XXXXXXXXXX",
-			//			"channel": "#channel-it-will-post-to",
-			//			"configuration_url": "https://teamname.slack.com/services/BXXXXX"
-			//		},
-			//		"bot":{
-			//			"bot_user_id":"UTTTTTTTTTTR",
-			//			"bot_access_token":"xoxb-XXXXXXXXXXXX-TTTTTTTTTTTTTT"
-			//		}
-			//	}
-			
-			
-			// Add some code here to further process and store the received tokens and information from Slack
-					
+			// We show the access token to the user and ask him/her to copy and paste it
 			$teamName = $response['team_name'];
+			$accessToken = $response['access_token'];
 			echo '
 				<h2>Installation completed successfully.</h2>
 				<p>Thank you for installing ' . APP_NAME . ' to your Slack team ' . $teamName. '</p>
+				<p>Copy and paste this access token into the Desktop Application: ' . $accessToken . '</p>
 				<p>You can now close this browser window and return to Slack to try out the new app.</p>
-			';
-			$accessToken = $response['access_token'];
-			echo '
-				<p>Copy and paste this access token: ' . $accessToken . '</p>
 			';
 		}
 	}
