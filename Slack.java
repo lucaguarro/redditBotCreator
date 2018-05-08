@@ -1,5 +1,6 @@
 package redditBotCreator;
 
+import javafx.fxml.FXMLLoader;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -136,7 +137,7 @@ public class Slack {
 
     /*
 }*/
-    void sendLinksToUsers(ArrayList<String> links, String slackChannel){
+    int sendLinksToUsers(ArrayList<String> links, String slackChannel){
         String channelID = joinSlackChannel(slackChannel);
         if(channelID.equals("ARCHIVED")){
             System.out.println("Unarchiving...");
@@ -159,9 +160,9 @@ public class Slack {
             request.setURI(url);
 
             try {
-                response = client.execute(request);
+                client.execute(request);
                 request.releaseConnection();
-                System.out.println("Response Code : "
+                /*System.out.println("Response Code : "
                         + response.getStatusLine().getStatusCode());
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
                 StringBuffer result = new StringBuffer();
@@ -170,7 +171,7 @@ public class Slack {
                     result.append(line);
                 }
                 System.out.println(result.toString());
-                o = new JSONObject(result.toString());
+                o = new JSONObject(result.toString());*/
             } catch (ClientProtocolException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -179,6 +180,7 @@ public class Slack {
                 e.printStackTrace();
             }
         }
+        return links.size();
     }
     String getChannelID(String checkChannel){
         String url = "https://slack.com/api/channels.list?token=" + token;

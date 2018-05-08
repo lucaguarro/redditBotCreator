@@ -22,6 +22,8 @@ import javafx.fxml.Initializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import javafx.fxml.FXML;
@@ -60,6 +62,8 @@ public class Controller implements Initializable {
     private ToggleButton executeBtn;
     @FXML
     private TextField accessToken;
+    @FXML
+    private TextArea console;
 
     protected ListProperty<String> subredditsProperty = new SimpleListProperty<>();
     protected ListProperty<String> wordsProperty = new SimpleListProperty<>();
@@ -73,6 +77,13 @@ public class Controller implements Initializable {
         alert.setContentText(contentText);
         alert.showAndWait();
     }
+
+    public void consoleDateAndTime(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        console.appendText(dtf.format(now)+"\n");
+    }
+
     public void onExecuteToggle(){
         if(executeBtn.isSelected()){
             if(!s.hasToken()){
@@ -82,6 +93,8 @@ public class Controller implements Initializable {
             else {
                 botThread = new Thread(new Runnable() {
                     public void run() {
+                        consoleDateAndTime();
+                        console.appendText("Bots starting up...\n\n");
                         runTheBots(); // code goes here.
                     }
                 });
@@ -89,12 +102,13 @@ public class Controller implements Initializable {
             }
         }
         else{
+            consoleDateAndTime();
+            console.appendText("Bots terminating...\n");
             botThread.interrupt();
         }
     }
 
     public void runTheBots(){
-        System.out.println("Starting run...");
         /*
             Create our priority queue of bots. The priority queue determines which bot is up next to make
             the HTTP requests to reddit.
@@ -116,6 +130,7 @@ public class Controller implements Initializable {
         }
         if(onBots.size() == 0){
             executeBtn.setSelected(false);
+            console.appendText("No bots are on\n");
             Thread.currentThread().interrupt();
         }
         long timeRemaining;
@@ -134,8 +149,12 @@ public class Controller implements Initializable {
                     REDDIT REQUEST GOES HERE
                  */
                 ArrayList<String> links = r.getLinksToPosts(bot);
-                s.sendLinksToUsers(links, bot.getName().toString());
 
+                int numPostsFound;
+                consoleDateAndTime();
+                console.appendText("Bot: " + bot.getName() + " queried reddit\n");
+                numPostsFound = s.sendLinksToUsers(links, bot.getName().toString());
+                console.appendText("Bot: " + bot.getName() + " found " + numPostsFound + " new posts \n\n");
                 //update the last time stamp so we do not get duplicate posts
                 bot.setLastTimeStamp(cal.getTimeInMillis()/1000);
             }
@@ -217,6 +236,7 @@ public class Controller implements Initializable {
         statusColumn.setSortable(false);
         wordTextField.setFocusTraversable(false);
         subredditTextField.setFocusTraversable(false);
+        console.setEditable(false);
 
         statusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Bot, Boolean>, ObservableValue<Boolean>>(){
             @Override public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<Bot, Boolean> features) {
