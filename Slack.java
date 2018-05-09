@@ -40,22 +40,20 @@ public class Slack {
         JSONObject o = null;
         try {
             response = client.execute(request);
-            System.out.println("Response Code : "
-                    + response.getStatusLine().getStatusCode());
+            //Create the response
             BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             StringBuffer result = new StringBuffer();
             String line = "";
             while ((line = rd.readLine()) != null) {
                 result.append(line);
             }
-            System.out.println(result.toString());
+            //System.out.println(result.toString());
             o = new JSONObject(result.toString());
             request.releaseConnection();
             boolean isOkay = (boolean)o.get("ok");
             if(!isOkay){
                 String error = (String)o.get("error");
                 if(error.equals("is_archived")){
-                    System.out.println("ARCHIVED");
                     return "ARCHIVED";
                 }
             }
@@ -85,16 +83,6 @@ public class Slack {
         JSONObject o = null;
         try {
             response = client.execute(request);
-            System.out.println("Response Code : "
-                    + response.getStatusLine().getStatusCode());
-            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-            StringBuffer result = new StringBuffer();
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-            System.out.println(result.toString());
-            o = new JSONObject(result.toString());
             request.releaseConnection();
         } catch (ClientProtocolException e) {
             // TODO Auto-generated catch block
@@ -107,19 +95,21 @@ public class Slack {
 
     /*
 }*/
+
+    /**
+     * This function sends all of the links to the users slack channel
+     * @param links
+     * @param slackChannel
+     * @return the number of links sent
+     */
     int sendLinksToUsers(ArrayList<String> links, String slackChannel){
         String channelID = joinSlackChannel(slackChannel);
         if(channelID.equals("ARCHIVED")){
-            System.out.println("Unarchiving...");
             channelID = slackChannel;
         }
 
         String baseURL = "https://slack.com/api/chat.postMessage?token=" + token + "&channel=" + slackChannel + "&text=";
         URI url;
-        //URI url;
-        /*for(int i = 0; i < links.size(); i++) {
-            fullURL += links.get(i) + "\n";
-        }*/
         HttpPost request = new HttpPost();
         request.setHeader("Accept", "application/json");
         request.setHeader("Content-type", "application/json");
@@ -128,11 +118,9 @@ public class Slack {
         for(int i = 0; i < links.size(); i++) {
             url = URI.create(baseURL + links.get(i));
             request.setURI(url);
-
             try {
-                client.execute(request);
-                request.releaseConnection();
-                /*System.out.println("Response Code : "
+                response = client.execute(request);
+                System.out.println("Response Code : "
                         + response.getStatusLine().getStatusCode());
                 BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
                 StringBuffer result = new StringBuffer();
@@ -140,8 +128,9 @@ public class Slack {
                 while ((line = rd.readLine()) != null) {
                     result.append(line);
                 }
-                System.out.println(result.toString());
-                o = new JSONObject(result.toString());*/
+                o = new JSONObject(result.toString());
+                System.out.println(o.toString());
+                request.releaseConnection();
             } catch (ClientProtocolException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -152,32 +141,33 @@ public class Slack {
         }
         return links.size();
     }
+
+    /**
+     * This function returns the id of the slack channel with the given slack channel name
+     * @param checkChannel name of string of channel
+     * @return
+     */
     String getChannelID(String checkChannel){
         String url = "https://slack.com/api/channels.list?token=" + token;
         HttpGet request = new HttpGet(url);
         request.setHeader("Accept", "application/json");
         request.setHeader("Content-type", "application/json");
-        //request.addHeader("User-Agent", USER_AGENT);
         HttpResponse response;
         JSONObject o = null;
         try {
             response = client.execute(request);
-            System.out.println("Response Code : "
-                    + response.getStatusLine().getStatusCode());
             BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             StringBuffer result = new StringBuffer();
             String line = "";
             while ((line = rd.readLine()) != null) {
                 result.append(line);
             }
-            System.out.println(result.toString());
             o = new JSONObject(result.toString());
             JSONArray channels;
             channels = o.getJSONArray("channels");
             for (int i = 0; i < channels.length(); i++) {
                 String channelName = (String)channels.getJSONObject(i).get("name");
                 if(channelName.equals(checkChannel)){
-                    System.out.println("ID fam " + (String)channels.getJSONObject(i).get("id"));
                     return (String)channels.getJSONObject(i).get("id");
                 }
             }
@@ -192,6 +182,11 @@ public class Slack {
         }
         return "ERROR";
     }
+
+    /**
+     * This function authorizes the token the user pastes into the textbox.
+     * If the token is valid, it slack class will store it.
+     */
     boolean authorizeToken(String token){
         String url = "https://slack.com/api/auth.test?token=" + token;
         HttpPost request = new HttpPost(url);
@@ -201,23 +196,17 @@ public class Slack {
         JSONObject o = null;
         try {
             response = client.execute(request);
-            System.out.println("Response Code : "
-                    + response.getStatusLine().getStatusCode());
             BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             StringBuffer result = new StringBuffer();
             String line = "";
             while ((line = rd.readLine()) != null) {
                 result.append(line);
             }
-            System.out.println(result.toString());
             o = new JSONObject(result.toString());
             request.releaseConnection();
             boolean validAuth = (boolean)(o.get("ok"));
             if(validAuth){
-                this.setToken(token);
-                System.out.println("Wasvalid");
-            }else{
-                System.out.println("not valid");
+                this.setToken(token); //set the token
             }
             return validAuth;
         } catch (ClientProtocolException e) {
@@ -234,17 +223,23 @@ public class Slack {
         return this.token != null;
     }
 
-
+    /**
+     * This function opens up the helper app in the user's web browser and has cross-platform support
+     * @throws IOException
+     */
     void crossPlatformOpenWebApp() throws IOException {
         String os = System.getProperty("os.name").toLowerCase();
         String url = "http://www.redditbotcreator.byethost6.com/apps/myapp/install.php";
         Runtime rt = Runtime.getRuntime();
+        //WINDOWS
         if(os.indexOf("win") >= 0){
             rt.exec("rundll32 url.dll,FileProtocolHandler " + url);
         }
+        //OS MAC
         else if(os.indexOf("mac") >= 0){
             rt.exec("open " + url);
         }
+        //LINUX
         else if(os.indexOf("nix") >= 0 || os.indexOf(("nux")) >= 0){
             rt.exec("xdg-open " + url);
         }

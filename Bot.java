@@ -18,8 +18,7 @@ public class Bot implements Comparable<Bot>{
 
     private ObservableList<String> subreddits = FXCollections.observableArrayList();
     private ObservableList<String> words = FXCollections.observableArrayList();
-    //private ArrayList<String> subreddits = new ArrayList<String>();
-    //private ArrayList<String> words = new ArrayList<String>();
+
     private boolean isOn;
     public Bot(String name){
         this.name = new SimpleStringProperty(name);

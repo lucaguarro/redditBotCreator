@@ -189,7 +189,7 @@ public class Controller implements Initializable {
     }
 
     public void onBotCreate(){
-        String name = newBotName.getText();
+        String name = newBotName.getText().toLowerCase();
         bots.add(new Bot(name));
     }
 
@@ -234,6 +234,7 @@ public class Controller implements Initializable {
     }
 
     public void validateUserEntry(){
+        System.out.println("called");
         String token = this.accessToken.getText();
         boolean value = s.authorizeToken(token);
         if(value){
