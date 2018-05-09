@@ -29,11 +29,13 @@ import java.util.*;
 
 import javafx.fxml.FXML;
 
+/**
+ * This class is responsible for handling all UI controls
+ */
 public class Controller implements Initializable {
     private static Slack s = new Slack();
     private reddit r;
     private Bot currentBot;
-
 
     @FXML
     private Label slackVerificationLabel;
@@ -71,21 +73,30 @@ public class Controller implements Initializable {
 
     Thread botThread;
 
-
-
+    /**
+     * Function used by the console-side of the UI to print the current date and time in a formatted fashion
+     */
     public void consoleDateAndTime(){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         console.appendText(dtf.format(now)+"\n");
     }
 
+    /**
+     * This function is called when the "run the bots" button is clicked
+     */
     public void onExecuteToggle(){
+        //If the button is selected
         if(executeBtn.isSelected()){
+            //Make sure that a valid token was supplied
+            //If it wasn't notify the user with an alert and unselect the button
             if(!s.hasToken()){
                 utilities.getInstance().makeAlert("Error", "No Token", "You did not provide a token. Please click the add to slack button to get the access token.");
                 executeBtn.setSelected(false);
             }
+            //If there is a valid token
             else {
+                //create a new thread to run our bots on
                 botThread = new Thread(new Runnable() {
                     public void run() {
                         consoleDateAndTime();
@@ -96,6 +107,7 @@ public class Controller implements Initializable {
                 botThread.start();
             }
         }
+        //If the button is now deselected, it means that the program was running before and we want to terminate the bot thread
         else{
             consoleDateAndTime();
             console.appendText("Bots terminating...\n");
@@ -103,6 +115,9 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * Funcion that is called when the bots are told to execute
+     */
     public void runTheBots(){
         /*
             Create our priority queue of bots. The priority queue determines which bot is up next to make
@@ -175,6 +190,9 @@ public class Controller implements Initializable {
         System.out.println("Stopping run...");
     }
 
+    /**
+     * function called when the slack button is clicked. Opens up the web browser.
+     */
     public void slackLoginClicked(){
         try {
             s.crossPlatformOpenWebApp();
@@ -183,16 +201,21 @@ public class Controller implements Initializable {
         }
     }
 
-    public void testMe() throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException, UnsupportedEncodingException {
-        ArrayList<String> bs = new ArrayList<>();
-        s.sendLinksToUsers(bs, "catbot");
-    }
-
+    /**
+     * Function called when the add new bot button is clicked. A new bot is created only when there is text in the corresponding
+     * text field. When this bot is added, it is displayed in the table
+     */
     public void onBotCreate(){
-        String name = newBotName.getText().toLowerCase();
-        bots.add(new Bot(name));
+        if(!newBotName.getText().isEmpty()) {
+            String name = newBotName.getText().toLowerCase();
+            bots.add(new Bot(name));
+        }
     }
 
+    /**
+     * This function is called when the user selects a new frequency. User validation to make sure there is actually a bot
+     * selected
+     */
     public void setFrequency(){
         if (currentBot != null) {
             Frequency freq = (Frequency) freqBox.getValue();
@@ -203,6 +226,11 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * This function is called when the user clicks "add new subreddit" button
+     * Validation is performed with the Reddit API to make sure that subreddit actually exists
+     * Also validation to make sure a bot is selected
+     */
     public void addSubreddit(){
         if(currentBot != null) {
             String subreddit = subredditTextField.getText();
@@ -221,6 +249,10 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * This function is called when the user clicks "add new word" button
+     * User validation to make sure that a bot is selected
+     */
     public void addWord(){
         if(currentBot != null) {
             currentBot.getWords().add(wordTextField.getText());
@@ -233,6 +265,9 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * This function is called when the user exits the copy-past slack token textbox
+     */
     public void validateUserEntry(){
         System.out.println("called");
         String token = this.accessToken.getText();
@@ -245,6 +280,11 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * This function is used with JavaFX to initialize things with the UI describing how the controls should behave
+     * @param location
+     * @param resources
+     */
     public void initialize(URL location, ResourceBundle resources){
         r = reddit.getInstance();
         nameColumn.setCellValueFactory(new PropertyValueFactory<Bot, String>("name"));
@@ -254,6 +294,9 @@ public class Controller implements Initializable {
         subredditTextField.setFocusTraversable(false);
         console.setEditable(false);
 
+        /**
+         * Creates a boolean property in the status column for each bot as it is added to the table. Represented as a checkbox.
+         */
         statusColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Bot, Boolean>, ObservableValue<Boolean>>(){
             @Override public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<Bot, Boolean> features) {
                 return new SimpleBooleanProperty(features.getValue().isOn());
@@ -286,7 +329,8 @@ public class Controller implements Initializable {
             return row;
         });
         botTable.setItems(bots);
-        //int[] frequencies = {60000, 900000, 1800000, 3600000, 14400000, 43200000, 86400000, 604800000};
+
+        //Initialize all the frequencies. This is static exhaustive list for the frequency box.
         freqBox.getItems().addAll(
                 new Frequency("Every Minute", 60000),
                 new Frequency("Every 15 Minutes", 900000),
@@ -297,6 +341,10 @@ public class Controller implements Initializable {
                 new Frequency("Every Day", 86400000),
                 new Frequency("Every Week", 604800000)
         );
+
+        /**
+         * Tells the frequency box how to display a Frequency object
+         */
         freqBox.setConverter(new StringConverter<Frequency>(){
             @Override
             public String toString(Frequency object) {
